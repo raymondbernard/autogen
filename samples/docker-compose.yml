@@ -1,0 +1,94 @@
+version: "3.7"
+services:
+  redpanda:
+    image: docker.redpanda.com/redpandadata/redpanda:v23.3.3
+    container_name: redpanda
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9644/v1/status/ready"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    command:
+      - redpanda start
+      - --smp 1
+      - --overprovisioned
+      - --node-id 0
+      - --kafka-addr INSIDE://0.0.0.0:29092,OUTSIDE://0.0.0.0:9092
+      - --advertise-kafka-addr INSIDE://redpanda:29092,OUTSIDE://localhost:9092
+      - --pandaproxy-addr 0.0.0.0:8082
+      - --advertise-pandaproxy-addr localhost:8082
+
+    ports:
+      - 8081:8081
+      - 8082:8082
+      - 9092:9092
+      - 9644:9644
+      - 29092:29092
+
+  kafka-connect:
+    # remove or comment the following line for the Chapter 3 tutorial
+    image: quay.io/debezium/connect:latest # debezium moving off of docker hub 
+    # uncomment the following lines for the Chapter 3 tutorial
+    # build:
+    #   context: .
+    #   dockerfile: Dockerfile
+      
+    depends_on:
+      - redpanda
+    ports:
+      - "8083:8083"
+    environment:
+      BOOTSTRAP_SERVERS: redpanda:29092
+      GROUP_ID: kafka-connect-group
+      CONFIG_STORAGE_TOPIC: connect-configs
+      OFFSET_STORAGE_TOPIC: connect-offsets
+      STATUS_STORAGE_TOPIC: connect-status
+      KEY_CONVERTER: org.apache.kafka.connect.json.JsonConverter
+      VALUE_CONVERTER: org.apache.kafka.connect.json.JsonConverter
+      INTERNAL_KEY_CONVERTER: org.apache.kafka.connect.json.JsonConverter
+      INTERNAL_VALUE_CONVERTER: org.apache.kafka.connect.json.JsonConverter
+      KEY_CONVERTER_SCHEMAS_ENABLE: "false"
+      VALUE_CONVERTER_SCHEMAS_ENABLE: "false"
+      INTERNAL_KEY_CONVERTER_SCHEMAS_ENABLE: "false"
+      INTERNAL_VALUE_CONVERTER_SCHEMAS_ENABLE: "false"
+      CONNECT_REST_PORT: 8083
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+  console:
+    container_name: redpanda-console
+    image: docker.redpanda.com/redpandadata/console:latest
+    entrypoint: /bin/sh
+    command: -c 'echo "$$CONSOLE_CONFIG_FILE" > /tmp/config.yml && echo "$$CONSOLE_ROLEBINDINGS_CONFIG_FILE" > /tmp/role-bindings.yml && /app/console'
+    environment:
+      CONFIG_FILEPATH: /tmp/config.yml
+      CONSOLE_CONFIG_FILE: |
+        kafka:
+          brokers: ["redpanda:29092"]
+          schemaRegistry:
+            enabled: true
+            urls: ["http://redpanda:8081"]
+        redpanda:
+          adminApi:
+            enabled: true
+            urls: ["http://redpanda:9644"]
+        connect:
+          enabled: true
+          clusters:
+            - name: demo
+              url: http://kafka-connect:8083
+              # No auth configured on that cluster, hence no username/password set
+    ports:
+      - 8080:8080
+    depends_on:
+      - redpanda
+      - kafka-connect
+  owl-shop:
+      image: quay.io/cloudhut/owl-shop:latest
+      container_name: owl-shop
+      environment:
+        - SHOP_KAFKA_BROKERS=redpanda:29092 
+        - SHOP_KAFKA_TOPICREPLICATIONFACTOR=1
+        - SHOP_TRAFFIC_INTERVAL_RATE=1
+        - SHOP_TRAFFIC_INTERVAL_DURATION=0.1s
+      depends_on:
+        - redpanda

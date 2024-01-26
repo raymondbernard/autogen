@@ -1,0 +1,12 @@
+syntax = "proto3";
+package AI;
+
+message AIagent {
+  string date = 1;
+  string message = 2;
+  string system = 3;
+  string open = 4;
+  string score = 5;
+  string high = 6;
+  string low = 7;
+}
