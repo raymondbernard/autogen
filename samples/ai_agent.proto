@@ -1,7 +1,7 @@
 syntax = "proto3";
-package AI;
+package ai;
 
-message AIagent {
+message Ai {
   string date = 1;
   string message = 2;
   string system = 3;

@@ -3,7 +3,7 @@ import csv
 import glob
 import logging
 import pathlib
-import ai_agent_pb2
+from ai_agent_pb2 import Ai
 
 from dotenv import load_dotenv
 from confluent_kafka import Producer
@@ -54,11 +54,22 @@ admin = AdminClient(conf)
 # except KafkaException as e:
 #     logging.error(e)
 
-mess = 'cosmic test'
+val = Ai()
+val.date = '2024-01-26'
+val.message = 'Your message'
+val.system = 'System X'
+val.open = 'Open Y'
+val.score = 'Score Z'
+val.high = 'High Value'
+val.low = 'Low Value'
+
+
+serialized_val = val.SerializeToString()
+
 
 registry = SchemaRegistryClient({"url": redpanda_schema_registry})
 protobuf_serializer = ProtobufSerializer(
-    ai_agent_pb2.AI, registry, {"use.deprecated.format": False}
+    Ai, registry, {"use.deprecated.format": False}
 )
 #
 # Write to topic
@@ -69,22 +80,24 @@ def delivery_report(err, msg):
         logging.error("Unable to deliver message: %s", err)
     else:
         out = f"topic: {msg.topic()}, "
+        out = f"key: {msg.key()}, "
         out += f"partition: {msg.partition()}, "
         out += f"offset: {msg.offset()}, "
         out += f"value: {msg.value()}"
         logging.info(out)
 
-logging.info("Writing to topic: %s", 'ai')
+logging.info("Writing to topic: %s", redpanda_topic)
 p = Producer(conf)
 here = pathlib.Path(__file__).parent.resolve()
-logging.info("Processing message: %s", mess)
+logging.info("Processing message: %s", val)
 
-val = mess
+logging.info("Serialized Message: %s", serialized_val)
+
 try:
     p.produce(
-        topic='ai',
-        key="123",
-        value=val.encode("utf-8"),
+        topic= redpanda_topic,
+        key="123456",
+        value= serialized_val,
         on_delivery=delivery_report,
     )
 except KafkaException as e:

@@ -106,7 +106,8 @@ logging.info("Writing to topic: %s", topic_name)
 producer = Producer(conf)
 
 here = os.path.realpath(os.path.dirname(__file__))
-for file in glob.glob(f"{here}/../../data/*.csv"):
+print(here)
+for file in glob.glob(f"{here}/*.csv"):
     logging.info("Processing file: %s", file)
     with open(file, encoding="utf-8") as f:
         reader = csv.reader(f)

@@ -47,10 +47,10 @@ services:
       VALUE_CONVERTER: org.apache.kafka.connect.json.JsonConverter
       INTERNAL_KEY_CONVERTER: org.apache.kafka.connect.json.JsonConverter
       INTERNAL_VALUE_CONVERTER: org.apache.kafka.connect.json.JsonConverter
-      KEY_CONVERTER_SCHEMAS_ENABLE: "false"
-      VALUE_CONVERTER_SCHEMAS_ENABLE: "false"
-      INTERNAL_KEY_CONVERTER_SCHEMAS_ENABLE: "false"
-      INTERNAL_VALUE_CONVERTER_SCHEMAS_ENABLE: "false"
+      KEY_CONVERTER_SCHEMAS_ENABLE: "true"
+      VALUE_CONVERTER_SCHEMAS_ENABLE: "true"
+      INTERNAL_KEY_CONVERTER_SCHEMAS_ENABLE: "true"
+      INTERNAL_VALUE_CONVERTER_SCHEMAS_ENABLE: "true"
       CONNECT_REST_PORT: 8083
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
