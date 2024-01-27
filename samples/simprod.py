@@ -17,10 +17,10 @@ producer = Producer(producer_conf)
 # Create a new Ai message
 ai_message = ai_agent_pb2.Ai()
 ai_message.date = "2024-01-26"
-ai_message.message = "Cosmic3 message"
-ai_message.system = "System1"
+ai_message.message = "ray message"
+ai_message.system = "System this working"
 ai_message.open = "Open"
-ai_message.score = "100"
+ai_message.score = "2000"
 ai_message.high = "200"
 ai_message.low = "50"
 

@@ -6,9 +6,9 @@ DESCRIPTOR: _descriptor.FileDescriptor
 
 class AI(_message.Message):
     __slots__ = ["date", "message", "system", "open", "score", "high", "low"]
-    DATE_FIELD_NUMBER: _ClassVar[str]
-    MESSAGE_NUMBER: _ClassVar[str]
-    SYSTEM_NUMBER: _ClassVar[str]
+    DATE_FIELD_NUMBER: _ClassVar[int]
+    MESSAGE_STR: _ClassVar[str]
+    SYSTEM_STR: _ClassVar[str]
     OPEN_FIELD_NUMBER: _ClassVar[str]
     SCORE_FIELD_NUMBER: _ClassVar[str]
     HIGH_FIELD_NUMBER: _ClassVar[str]

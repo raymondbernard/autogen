@@ -18,7 +18,6 @@ kafka_sasl_mechanism = os.getenv("KAFKA_SASL_MECHANISM", None)
 redpanda_username = os.getenv("REDPANDA_USERNAME", None)
 redpanda_password = os.getenv("REDPANDA_PASSWORD", None)
 logging.info("Connecting to: %s", redpanda_brokers)
-logging.info("Connecting to Topic =  %s", redpanda_topic)
 
 conf = {
     "bootstrap.servers": redpanda_brokers,
@@ -79,4 +78,3 @@ while True:
         break
 
 c.close()
-
